@@ -1,2 +1,15 @@
-# spark-connect
-A subproject of Predictiveworks that provides common access to Cassandra, Elasticsearch, HBase, MongoDB, Parquet and JDBC database from Apache Spark.
+
+## Common Access Layer for Apache Spark
+
+[Predictiveworks](http://predictiveworks.eu) supports raw data retrieval from multiple NoSQL and JDBC data sources.
+
+Read requests are supported for the following sources:
+
+* Cassandra
+* Elasticsearch
+* HBase
+* MongoDB
+* Parquet
+
+Predictiveworks writes data mining results & predictive models to either Redis or Parquet.
+
