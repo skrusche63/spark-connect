@@ -110,12 +110,24 @@
 	  <artifactId>spark-cassandra-connector_2.10</artifactId>
 	  <version>1.2.0-alpha1</version>
     </dependency>    
-    
-    <!-- spark hbase connector -->
+
+    <!-- hbase -->
     <dependency>
-      <groupId>it.nerdammer.bigdata</groupId>
-      <artifactId>spark-hbase-connector_2.10</artifactId>
-      <version>0.9.2</version>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-common</artifactId>
+      <version>0.98.8-hadoop2</version>
+    </dependency>    
+    
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-client</artifactId>
+      <version>0.98.8-hadoop2</version>
+    </dependency>    
+    
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-server</artifactId>
+      <version>0.98.8-hadoop2</version>
     </dependency>    
 
     <dependency>

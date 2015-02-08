@@ -21,48 +21,86 @@ package de.kp.spark.connect
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-import it.nerdammer.spark.hbase._
-import it.nerdammer.spark.hbase.conversion._
+import org.apache.hadoop.hbase.util.Bytes
+import org.apache.hadoop.hbase.HBaseConfiguration
+
+import org.apache.hadoop.hbase.CellUtil
+import org.apache.hadoop.hbase.client.Result
+
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable
+import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 
 class HBaseReader(@transient sc:SparkContext) extends Serializable {
+  
+  private val HBASE_ROOTDIR = "/hbase"
+    
   /**
    * This method reads the content of an HBase table of a specific
    * keyspace. Actually, all data records are retrieved from the table 
    */
-  def read(config:ConnectConfig,keyspace:String,table:String,columns:List[String] = List.empty[String]):RDD[Map[String,Any]] = {
+  def read(config:ConnectConfig,columnfamily:String,table:String,names:List[String],types:List[String]):RDD[Map[String,Any]] = {
       
     val settings = config.hbase
     val host = settings("spark.hbase.host")
-    /*
-     * We add the configuration parameters to connect to HBase here;
-     * note, that 'host' refers to 'hbase.zookeeper.quorum', and, 
-     * 'hbase.rootdir' is set to '/hbase' as default value.
-     * 
-     * 'hbase.zookeeper.property.clientPort' is not considered by
-     * the hbase connector and therefore requires '2181'
-     * 
-     * Below is a default configuration for low level access to HBase:
-     * 
-     * val config = HBaseConfiguration.create()
-     * config.set("hbase.zookeeper.quorum", "localhost")
-     * config.set("hbase.zookeeper.property.clientPort","2181")
-     * config.set("hbase.mapreduce.inputtable", "hbaseTableName")
-     * 
-     * var source = sc.newAPIHadoopRDD(
-     *                 config, 
-     *                 classOf[TableInputFormat], 
-     *                 classOf[org.apache.hadoop.hbase.io.ImmutableBytesWritable], 
-     *                 classOf[org.apache.hadoop.hbase.client.Result])
-     * 
-     * Relevant methods from Result:
-     * 
-     * - result.getRow
-     * - result.getColumn
-     * 
-     */
-    sc.getConf.set("spark.hbase.host",host)
+     
+    val conf = HBaseConfiguration.create
+    conf.setBoolean("hbase.cluster.distributed", true)
+    conf.setInt("hbase.client.scanner.caching", 10000)
     
-    null
+    conf.set("hbase.rootdir", HBASE_ROOTDIR)
+    
+    conf.set("hbase.zookeeper.quorum", host)   
+    conf.set("hbase.zookeeper.property.clientPort","2181")
+    
+    val columns = names.map(name => columnfamily + ":" + name)
+    conf.set(TableInputFormat.SCAN_COLUMNS, columns.mkString(" "))
+
+    val typedNames = names.zip(types)
+    
+    def toMap(key:ImmutableBytesWritable,row:Result):Map[String,Any] = {
+      
+      typedNames.map{case(colname,coltype) => {
+        /*
+         * Convert column family and respective columns
+         * into HBase readable Byte array
+         */
+        val cf = Bytes.toBytes(columnfamily)
+        val cn = Bytes.toBytes(colname)
+        
+        if (row.containsColumn(cf,cn) == false) throw new Exception(
+            String.format("""Combination of cf:%s and cn:%s does not exist""",columnfamily,colname))
+        
+        val byteValue = CellUtil.cloneValue(row.getColumnLatestCell(cf,cn)).array
+        /*
+         * We actually support the following data types:
+         * 
+         * double, integer, long, string
+         * 
+         * as these are needed by Predictiveworks
+         */
+        val colvalu = coltype match {
+          
+          case "double" => Bytes.toDouble(byteValue)
+          
+          case "integer" => Bytes.toInt(byteValue)
+            
+          case "long" => Bytes.toLong(byteValue)
+            
+          case "string" => Bytes.toString(byteValue)
+            
+          case _ => throw new Exception(String.format("""The data type '%s' is not supported.""",coltype))
+          
+        }
+        
+        (colname,colvalu)
+        
+      }}.toMap
+      
+    }
+
+    val source = sc.newAPIHadoopRDD(conf,classOf[TableInputFormat],classOf[ImmutableBytesWritable],classOf[Result])
+    source.map{case(key,row) => toMap(key,row)}
+
   }
 
 }
