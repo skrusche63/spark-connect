@@ -67,52 +67,6 @@ class ElasticReader(@transient sc:SparkContext) extends Serializable {
     read(conf)
     
   }
-
-  def open(index:String,mapping:String):Boolean = {
-        
-    val readyToRead = try {
-      
-      val indices = client.admin().indices
-      /*
-       * Check whether referenced index exists; if index does not
-       * exist, through exception
-       */
-      val existsRes = indices.prepareExists(index).execute().actionGet()            
-      if (existsRes.isExists() == false) {
-        new Exception("Index '" + index + "' does not exist.")            
-      }
-
-      /*
-       * Check whether the referenced mapping exists; if mapping
-       * does not exist, through exception
-       */
-      val prepareRes = indices.prepareGetMappings(index).setTypes(mapping).execute().actionGet()
-      if (prepareRes.mappings().isEmpty) {
-        new Exception("Mapping '" + index + "/" + mapping + "' does not exist.")
-      }
-      
-      true
-
-    } catch {
-      case e:Exception => {
-        
-        logger.error(e.getMessage())
-        false
-        
-      }
-       
-    }
-    
-    readyToRead
-    
-  }
-
-  def exists(index:String,mapping:String,id:String):Boolean = {
-    
-    val response = client.prepareGet(index,mapping,id).execute().actionGet()
-    if (response.isExists()) true else false
-
-  }
   
   def close() {
     if (node != null) node.close()

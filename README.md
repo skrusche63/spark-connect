@@ -12,5 +12,3 @@ Read requests are supported for the following sources:
 * Parquet
 
 Predictiveworks writes data mining results & predictive models to either Redis or Parquet.
-
-Stay tuned, code will be published soon. For the impatient, have a look into the spark-core project.
