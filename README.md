@@ -11,4 +11,6 @@ Read requests are supported for the following sources:
 * MongoDB
 * Parquet
 
+* Google Analytics Report API v3
+
 Predictiveworks writes data mining results & predictive models to either Redis or Parquet.
