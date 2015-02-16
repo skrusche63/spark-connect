@@ -136,6 +136,19 @@
 	  <version>5.1.31</version>
     </dependency>      
     
+    <!-- google analytics -->
+    <dependency>
+	  <groupId>com.google.gdata</groupId>
+	  <artifactId>gdata-core-1.0</artifactId>
+	  <version>1.41.5</version>
+    </dependency>     
+    
+    <dependency>
+	  <groupId>com.google.gdata</groupId>
+	  <artifactId>gdata-analytics-2.1</artifactId>
+	  <version>1.41.5</version>
+    </dependency>   
+    
   </dependencies>
  
   <repositories>
@@ -143,6 +156,10 @@
       <id>conjars.org</id>
       <url>http://conjars.org/repo</url>
     </repository>
+    <repository>
+      <id>Mandubian Repository</id>
+      <url>http://mandubian-mvn.googlecode.com/svn/trunk/mandubian-mvn/repository/</url>
+    </repository>    
   </repositories>
 
   <build>

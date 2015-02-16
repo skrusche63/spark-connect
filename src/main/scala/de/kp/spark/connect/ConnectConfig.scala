@@ -33,6 +33,11 @@ trait ConnectConfig {
   def elastic:HConf
   /**
    * This method retrieves the settings to access
+   * Google Analytics
+   */
+  def ga:Map[String,String]  
+  /**
+   * This method retrieves the settings to access
    * HBase
    */
   def hbase:Map[String,String]  

@@ -21,14 +21,10 @@ package de.kp.spark.connect
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-class CassandraSource(@transient sc:SparkContext) extends Serializable {
+class GaSource(@transient sc:SparkContext) extends Serializable {
  
-  def connect(config:ConnectConfig,requestParams:Map[String,String],columns:List[String]=List.empty[String]):RDD[Map[String,Any]] = {
-    
-    val keyspace = requestParams("keyspace")
-    val table = requestParams("table")
-    
-    new CassandraReader(sc).read(config,keyspace,table,columns)
+  def connect(config:ConnectConfig,requestParams:Map[String,String]):RDD[Map[String,Any]] = {
+    new GaReader(sc).read(config,requestParams)
 
   }
 
