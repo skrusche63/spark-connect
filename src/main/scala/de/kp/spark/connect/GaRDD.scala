@@ -26,7 +26,6 @@ import org.apache.spark.TaskKilledException
 import org.apache.spark.rdd.RDD
 
 import org.apache.spark.util.NextIterator
-import scala.reflect.ClassTag
 
 import com.google.gdata.client.analytics.{AnalyticsService,DataQuery}
 import com.google.gdata.data.analytics.{DataEntry,DataFeed}
@@ -64,7 +63,7 @@ class GaRDD(
     
     (0 until numPartitions).map(i => {
       
-      val startIx = 1 + (i-1) * maxResult
+      val startIx = 1 + i * maxResult
       new GaPartition(i,startIx,maxResult)
     
     }).toArray
