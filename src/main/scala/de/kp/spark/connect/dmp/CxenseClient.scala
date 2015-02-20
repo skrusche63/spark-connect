@@ -55,7 +55,11 @@ class CxenseClient(username:String,secret:String) {
     getResponse(endpoint,params)
  
   }
-  
+  /*
+   * Collect interest profile for a certain user; the relevant 
+   * part of the response (profile) is equivalent to the 'content
+   * fetch' request 
+   */
   def getProfileUser(params:Map[String,Any]):Map[String,Any] = {
     
     val endpoint = "profile/user"
