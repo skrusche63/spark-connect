@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.parquet
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project

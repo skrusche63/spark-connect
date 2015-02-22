@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.hbase
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -29,6 +29,8 @@ import org.apache.hadoop.hbase.client.Result
 
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
+
+import de.kp.spark.connect.ConnectConfig
 
 class HBaseReader(@transient sc:SparkContext) extends Serializable {
   

@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.mongodb
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -20,12 +20,13 @@ package de.kp.spark.connect
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import de.kp.spark.connect.ConnectConfig
 
 class MongoSource(@transient sc:SparkContext) extends Serializable {
  
-  def connect(config:ConnectConfig,requestParams:Map[String,String]):RDD[Map[String,Any]] = {
+  def read(config:ConnectConfig,params:Map[String,String]):RDD[Map[String,Any]] = {
     
-    val query = requestParams("query")
+    val query = params("query")
     new MongoReader(sc).read(config,query)
 
   }

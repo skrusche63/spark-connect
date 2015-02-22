@@ -25,6 +25,12 @@ import de.kp.spark.connect.aerospike.AerospikeSource
 import de.kp.spark.connect.cassandra.CassandraSource
 
 import de.kp.spark.connect.elasticsearch.ElasticSource
+import de.kp.spark.connect.hbase.HBaseSource
+
+import de.kp.spark.connect.jdbc.JdbcSource
+import de.kp.spark.connect.mongodb.MongoSource
+
+import de.kp.spark.connect.parquet.ParquetSource
 
 object Sources {
     
@@ -40,7 +46,7 @@ object Sources {
   val PARQUET:String = "parquet"
     
 }
-
+// TODO schema & params should be harmonized
 class SQLSource(
     @transient sqlContext:SQLContext,
     config:ConnectConfig,
@@ -78,10 +84,17 @@ class SQLSource(
       case Sources.CASSANDRA => new CassandraSource(sc).read(config,params)
 
       case Sources.ELASTICSEARCH => new ElasticSource(sc).read(config,params)
+      case Sources.HBASE => new HBaseSource(sc).read(config,params)
+
+      case Sources.JDBC => new JdbcSource(sc).read(config,params)
+      case Sources.MONGODB => new MongoSource(sc).read(config,params)
+
+      case Sources.PARQUET => new ParquetSource(sc).read(config,params)
+      
       case _ => throw new Exception(String.format("""Data source %s is not supported.""",source))
       
     }
-    null
+    
   }
 
 }

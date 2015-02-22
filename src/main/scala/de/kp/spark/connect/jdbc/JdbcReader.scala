@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.jdbc
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -24,6 +24,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.rdd.{JdbcRDD,RDD}
 
 import scala.collection.mutable.HashMap
+import de.kp.spark.connect.ConnectConfig
 
 class JdbcReader(@transient sc:SparkContext) extends Serializable {
 

@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.mongodb
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -21,15 +21,39 @@ package de.kp.spark.connect
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-class HBaseSource(@transient sc:SparkContext) extends Serializable {
- 
-  def connect(config:ConnectConfig,requestParams:Map[String,String],names:List[String],types:List[String]):RDD[Map[String,Any]] = {
-    
-    val columnfamily = requestParams("columnfamily")
-    val table = requestParams("table")
-    
-    new HBaseReader(sc).read(config,columnfamily,table,names,types)
+import com.mongodb.hadoop.MongoInputFormat
+import org.bson.BSONObject
 
+import scala.collection.mutable.HashMap
+import scala.collection.JavaConversions._
+
+import de.kp.spark.connect.ConnectConfig
+
+class MongoReader(@transient sc:SparkContext) extends Serializable {
+  
+  def read(config:ConnectConfig,query:String):RDD[Map[String,Any]] = {
+    
+    val conf = config.mongo
+    conf.set("mongo.input.query",query)    
+    
+    val source = sc.newAPIHadoopRDD(conf, classOf[MongoInputFormat], classOf[Object], classOf[BSONObject])
+    source.map(x => toMap(x._2))
+    
   }
 
+  private def toMap(obj:BSONObject):Map[String,Any] = {
+    
+    val data = HashMap.empty[String,Any]
+    
+    val keys = obj.keySet()
+    for (k <- keys) {
+      
+      val v = obj.get(k)
+      data += k -> v
+    
+    }
+    
+    data.toMap
+    
+  }
 }
