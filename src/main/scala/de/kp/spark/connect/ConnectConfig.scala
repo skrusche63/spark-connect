@@ -23,6 +23,11 @@ trait ConnectConfig {
 
   /**
    * This method retrieves the settings to access
+   * an Aerospike Cluster
+   */
+  def aerospike:Map[String,String]  
+  /**
+   * This method retrieves the settings to access
    * a Cassandra Cluster
    */
   def cassandra:Map[String,String]  
