@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.aerospike
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -24,6 +24,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.hadoop.conf.{Configuration => HConfig}
 
 import com.aerospike.hadoop._
+import de.kp.spark.connect.ConnectConfig
+
 import scala.collection.JavaConversions._
 
 class AerospikeReader(@transient sc:SparkContext) extends Serializable {

@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.aerospike
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -21,9 +21,11 @@ package de.kp.spark.connect
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
+import de.kp.spark.connect.ConnectConfig
+
 class AerospikeSource(@transient sc:SparkContext) extends Serializable {
  
-  def connect(config:ConnectConfig,params:Map[String,String]):RDD[Map[String,Any]] = {
+  def read(config:ConnectConfig,params:Map[String,String]):RDD[Map[String,Any]] = {
     new AerospikeReader(sc).read(config,params)
   }
 

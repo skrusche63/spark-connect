@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.elasticsearch
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -21,14 +21,17 @@ package de.kp.spark.connect
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-class CassandraSource(@transient sc:SparkContext) extends Serializable {
+import de.kp.spark.connect.ConnectConfig
+
+class ElasticSource(@transient sc:SparkContext) extends Serializable {
  
-  def connect(config:ConnectConfig,requestParams:Map[String,String],columns:List[String]=List.empty[String]):RDD[Map[String,Any]] = {
+  def read(config:ConnectConfig,params:Map[String,String]):RDD[Map[String,Any]] = {
+
+    val index = params("index")
+    val mapping = params("mapping")
     
-    val keyspace = requestParams("keyspace")
-    val table = requestParams("table")
-    
-    new CassandraReader(sc).read(config,keyspace,table,columns)
+    val query = params("query").asInstanceOf[String]
+    new ElasticReader(sc).read(config,index,mapping,query)
 
   }
 

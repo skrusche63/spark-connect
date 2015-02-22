@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.elasticsearch
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -21,13 +21,12 @@ package de.kp.spark.connect
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
-import org.apache.hadoop.io.{ArrayWritable,MapWritable,NullWritable,Text}
-
-import org.elasticsearch.node.NodeBuilder._
-import org.elasticsearch.common.logging.Loggers
+import org.apache.hadoop.io.{ArrayWritable,DoubleWritable,IntWritable,LongWritable,MapWritable,NullWritable,Text,Writable}
 
 import org.apache.hadoop.conf.{Configuration => HConfig}
+
 import org.elasticsearch.hadoop.mr.EsInputFormat
+import de.kp.spark.connect.ConnectConfig
 
 import scala.collection.JavaConversions._
 
@@ -35,24 +34,15 @@ class ElasticReader(@transient sc:SparkContext) extends Serializable {
 
   val ES_QUERY:String = "es.query"
   val ES_RESOURCE:String = "es.resource"
-
-  /*
-   * Create an Elasticsearch node by interacting with
-   * the Elasticsearch server on the local machine
-   */
-  private val node = nodeBuilder().node()
-  private val client = node.client()
   
-  private val logger = Loggers.getLogger(getClass())
-  
-  def read(config:HConfig):RDD[Map[String,String]] = {
+  def read(config:HConfig):RDD[Map[String,Any]] = {
 
     val source = sc.newAPIHadoopRDD(config, classOf[EsInputFormat[Text, MapWritable]], classOf[Text], classOf[MapWritable])
     source.map(hit => toMap(hit._2))
     
   }
   
-  def read(config:ConnectConfig,index:String,mapping:String,query:String):RDD[Map[String,String]] = {
+  def read(config:ConnectConfig,index:String,mapping:String,query:String):RDD[Map[String,Any]] = {
           
     val conf = config.elastic
     
@@ -68,33 +58,55 @@ class ElasticReader(@transient sc:SparkContext) extends Serializable {
     
   }
   
-  def close() {
-    if (node != null) node.close()
-  }
-  
-  private def toMap(mw:MapWritable):Map[String,String] = {
-      
-    val m = mw.map(e => {
+  private def toMap(mw:MapWritable):Map[String,Any] = {
+    
+    mw.entrySet().map(kv => {
         
-      val k = e._1.toString        
-      val v = (if (e._2.isInstanceOf[Text]) e._2.toString()
-        else if (e._2.isInstanceOf[ArrayWritable]) {
-        
-          val array = e._2.asInstanceOf[ArrayWritable].get()
-          array.map(item => {
-            
-            (if (item.isInstanceOf[NullWritable]) "" else item.asInstanceOf[Text].toString)}).mkString(",")
+      val k = kv.getKey().asInstanceOf[Text].toString
+      val v = kv.getValue() match {
+          
+        case valu:ArrayWritable => {
+
+          val array = valu.get
+          array.map(record => {
+              
+            record.asInstanceOf[MapWritable].entrySet().map(entry => {
+                
+              val sub_k = entry.getKey().asInstanceOf[Text].toString()
+              val sub_v = entry.getValue() match {
+          
+                case sub_valu:IntWritable => valu.get()
+                case sub_valu:DoubleWritable => valu.get()
+          
+                case sub_valu:LongWritable => valu.get()
+                case sub_valu:Text => valu.toString
+
+                case _ => throw new Exception("Data type is not supported.")
+                  
+              }
+                
+              (sub_k,sub_v)
+                
+            }).toMap
+              
+          }).toList
             
         }
-        else "")
-        
-    
-      k -> v
-        
-    })
+          
+        case valu:IntWritable => valu.get()
+        case valu:DoubleWritable => valu.get()
+          
+        case valu:LongWritable => valu.get()
+        case valu:Text => valu.toString
+
+        case _ => throw new Exception("Data type is not supported.")
+          
+      }
       
-    m.toMap
-    
+      (k,v)
+        
+    }).toMap
+
   }
 
 }

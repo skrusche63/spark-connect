@@ -1,4 +1,4 @@
-package de.kp.spark.connect
+package de.kp.spark.connect.cassandra
 /* Copyright (c) 2014 Dr. Krusche & Partner PartG
  * 
  * This file is part of the Spark-Connect project
@@ -22,6 +22,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
 import com.datastax.spark.connector._
+import de.kp.spark.connect.ConnectConfig
 
 class CassandraReader(@transient sc:SparkContext) extends Serializable {
   /**
